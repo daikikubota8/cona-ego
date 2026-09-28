@@ -383,6 +383,8 @@
     }
   }
 
+
+  .trend-intro{font-size:12.5px;line-height:1.75;color:var(--text-dim);margin:0 0 14px}.trend-grid{display:grid;gap:14px}.trend-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.trend-card h2{margin:0 0 12px;font-size:16px;color:var(--amber)}.trend-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.trend-side{border-radius:9px;padding:12px 14px;background:var(--panel2);border:1px solid var(--line-soft)}.trend-side.up{border-top:3px solid var(--good)}.trend-side.down{border-top:3px solid var(--bad)}.trend-side h3{font-size:13px;margin:0 0 8px}.trend-side.up h3{color:var(--good)}.trend-side.down h3{color:var(--bad)}.trend-row{font-size:12.5px;line-height:1.75;margin:6px 0;color:var(--text-dim)}.trend-row strong{color:var(--text)}@media(max-width:640px){.trend-columns{grid-template-columns:1fr}}@media print{body.printing-trend #tab-store,body.printing-trend #tab-hq{display:none!important}body.printing-trend #tab-trend{display:block!important}.trend-card{break-inside:auto!important}.trend-side{break-inside:avoid-page!important}.trend-columns{grid-template-columns:1fr 1fr!important}}
 </style>
 </head>
 <body>
@@ -400,6 +402,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="store">店舗別 診断結果</button>
     <button class="tab-btn" data-tab="hq">本部マネージャー</button>
+    <button class="tab-btn" data-tab="trend">数値変動の見方</button>
   </div>
 
   <div id="tab-store">
@@ -412,6 +415,8 @@
   <div id="tab-hq" style="display:none;">
     <div id="hqList"></div>
   </div>
+
+  <div id="tab-trend" style="display:none"><div class="pdf-toolbar no-print"><button class="pdf-btn" type="button" onclick="printTrendGuide()">📄 このガイドをPDF出力</button></div><div class="print-only" style="font-size:20px;font-weight:700;margin:0 0 12px">エゴグラム数値の変動傾向</div><p class="trend-intro">前回値からの変化を読み取るための参考ガイドです。上昇・低下は単純な良し悪しではなく、現在の行動傾向や環境変化を確認する手がかりとしてご活用ください。</p><div id="trendGuide" class="trend-grid"></div></div>
   <div id="printFooter" class="print-footer print-only"></div>
 </div>
 
@@ -871,6 +876,10 @@ function renderHqList(){
 }
 
 
+
+const TREND_GUIDE={"CP（責任感・規範意識）": [["責任感や正義感が高まり、ルールやマニュアル、規律をしっかり守ろうとしている状態。", "店舗のオペレーション引き締め、数値目標達成への執着、自分や周囲への指導・厳しさが増す。", "高すぎると「頑固」「上から目線」「他人の不備を過剰に責める」リスク。"], ["良くも悪くも「緩み」が出ている状態、または大らかな状態。", "ルール徹底や数値管理への意識が薄れる、スタッフへの注意や指導を避けるようになる。", "威圧感が減って話しかけやすくなる一方、店舗の規律やクオリティが低下する懸念。"]], "NP（思いやり・サポート）": [["面倒見が良くなり、周囲のスタッフをサポートしたい気持ちが強まっている状態。", "温かい声かけ、感謝の伝達、新人教育への注力、店舗の雰囲気を和ませる言動が増える。", "高すぎると「甘やかし」になり、スタッフの自主性を奪うリスク。"], ["他者への関心や配慮が薄れている、または自分のことで手一杯になっている状態。", "ドライで冷淡な対応、褒める言葉や労いの言葉が減る、育成を放棄しがちになる。", "割り切った判断ができる一方、チームの心理的安全性が下がる懸念。"]], "A（分析力・冷静さ）": [["客観的なデータや事実に基づいて冷静に物事を考えている状態。", "数字やチェックリストを用いた改善、冷静な状況判断、論理的な指示出し。", "高すぎると「冷徹」「理屈っぽい」印象を与えるリスク。"], ["感覚や感情に頼りがちで、数字や論理的思考が疎かになっている状態。", "ノリや勢いでの運営、数値分析不足、計画性の欠如。", "決断スピードが上がる一方、再現性のないマネジメントになりやすい。"]], "FC（発想力・挑戦心）": [["モチベーションが高く、自由な発想や新しいアイデア、挑戦を楽しめている状態。", "活気、店舗独自の施策提案、明るいムードづくり。", "高すぎると「わがまま」「感情的」「やりっぱなし」のリスク。"], ["守りに入っている、または疲弊・ストレスによりエネルギーや楽しさが減っている状態。", "提案やアイデアが出ない、覇気がなくなる、ルーティン作業にとどまる。", "落ち着きが出る一方、店舗の活気や挑戦心が低下する。"]], "AC（協調性・気配り）": [["周囲の期待や感情を過剰に察知し、合わせようとしている状態。", "調和を保つ、素直に業務を受け入れる、気遣いや調整力が増す。", "高すぎると本音を避ける、仕事を断れない、ストレス蓄積のリスク。"], ["周囲の目を気にせず、自分の意思や主張をストレートに出せる状態。", "遠慮なく指示や改善意見を言える、自分の軸で行動する。", "意思決定がブレない一方、強引さや協調性不足と取られるリスク。"]]};
+function renderTrendGuide(){const labels=['状況・傾向','現場での現れ方','注意点・メリット／懸念'];document.getElementById('trendGuide').innerHTML=Object.entries(TREND_GUIDE).map(([t,d],i)=>`<section class="trend-card"><h2>${i+1}. ${escHtml(t)}</h2><div class="trend-columns">${['▲ 上昇したとき','▼ 低下したとき'].map((h,j)=>`<div class="trend-side ${j?'down':'up'}"><h3>${h}</h3>${d[j].map((x,k)=>`<p class="trend-row"><strong>${labels[k]}：</strong>${escHtml(x)}</p>`).join('')}</div>`).join('')}</div></section>`).join('')}
+function printTrendGuide(){document.getElementById('printFooter').textContent='エゴグラム数値変動の見方';withLightPrintTheme('printing-trend','エゴグラム数値変動の見方',null,()=>window.print())}
 // ---------- PDF / print ----------
 function withLightPrintTheme(mode, title, target, action){
   const previousTheme = document.documentElement.getAttribute('data-theme');
@@ -910,7 +919,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    ['store','hq'].forEach(t=>{
+    ['store','hq','trend'].forEach(t=>{
       document.getElementById('tab-'+t).style.display = (t===btn.dataset.tab)?'block':'none';
     });
     if(btn.dataset.store){
@@ -950,6 +959,7 @@ document.getElementById('themeToggle').addEventListener('click', async ()=>{
 populateStoreSelect();
 renderStoreContent();
 renderHqList();
+renderTrendGuide();
 initTheme();
 </script>
 </body>
